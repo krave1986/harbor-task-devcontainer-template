@@ -16,6 +16,68 @@ Current Template ID:
 ghcr.io/krave1986/harbor-task-devcontainer-template/harbor-task:1.0.1
 ```
 
+## USAGE
+
+### Using this template
+
+This repository publishes the Harbor Task Dev Container Template to GitHub Container Registry (GHCR).
+
+The published template package is:
+
+```text
+ghcr.io/krave1986/harbor-task-devcontainer-template/harbor-task
+```
+
+Current version:
+
+```text
+ghcr.io/krave1986/harbor-task-devcontainer-template/harbor-task:1.0.1
+```
+
+GHCR package page:
+
+### How to determine a template's GHCR address
+
+For a Dev Container Template, the GHCR reference can normally be determined from the template metadata and repository:
+
+```text
+ghcr.io/<publisher>/<repository>/<template-id>:<version>
+```
+
+Where:
+
+* `<publisher>` comes from `publisher` in `devcontainer-template.json`
+* `<repository>` is the GitHub repository name
+* `<template-id>` comes from `id` in `devcontainer-template.json`
+* `<version>` comes from `version` in `devcontainer-template.json`
+
+For example, this repository contains:
+
+```json
+{
+  "id": "harbor-task",
+  "version": "1.0.1",
+  "publisher": "krave1986"
+}
+```
+
+and the repository is:
+
+```text
+krave1986/harbor-task-devcontainer-template
+```
+
+Therefore its published GHCR reference is:
+
+```text
+ghcr.io/krave1986/harbor-task-devcontainer-template/harbor-task:1.0.1
+```
+
+The GHCR reference is an OCI container registry reference, not a web URL. To browse the published package, use the GitHub Packages page above.
+
+In normal Dev Container usage, users generally do not need to manually construct or pull this GHCR reference. Dev Container Templates are normally discovered and consumed through the Dev Container Templates registry.
+
+
 ---
 
 ## Why this repository exists
