@@ -1,0 +1,17 @@
+{
+  "id": "harbor-task",
+  "version": "1.0.0",
+  "name": "Harbor Task",
+  "description": "Minimal Dev Container for Harbor tasks using the task environment Dockerfile.",
+  "documentationURL": "https://github.com/krave1986/harbor-task-devcontainer-template",
+  "publisher": "krave1986",
+  "licenseURL": "https://github.com/krave1986/harbor-task-devcontainer-template/blob/main/LICENSE",
+  "platforms": [
+    "Linux"
+  ],
+  "keywords": [
+    "harbor",
+    "devcontainer",
+    "task"
+  ]
+}
