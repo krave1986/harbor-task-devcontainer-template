@@ -1,6 +1,6 @@
 {
   "id": "harbor-task",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "Harbor Task",
   "description": "Minimal Dev Container for Harbor tasks using the task environment Dockerfile.",
   "documentationURL": "https://github.com/krave1986/harbor-task-devcontainer-template",

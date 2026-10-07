@@ -1,8 +1,8 @@
 {
   "name": "Harbor Task",
   "build": {
-    "dockerfile": "../environment/Dockerfile",
-    "context": ".."
+    "dockerfile": "${localWorkspaceFolder}/environment/Dockerfile",
+    "context": "${localWorkspaceFolder}"
   },
   "workspaceMount": "source=${localWorkspaceFolder}/solution,target=/app,type=bind",
   "workspaceFolder": "/app"
