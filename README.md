@@ -13,7 +13,7 @@ The template is published to GitHub Container Registry (GHCR) and can be applied
 Current Template ID:
 
 ```text
-ghcr.io/krave1986/harbor-task-devcontainer-template/harbor-task:1.0.1
+ghcr.io/krave1986/harbor-task-devcontainer-template/harbor-task:2.0.0
 ```
 
 ## USAGE
@@ -31,7 +31,7 @@ ghcr.io/krave1986/harbor-task-devcontainer-template/harbor-task
 Current version:
 
 ```text
-ghcr.io/krave1986/harbor-task-devcontainer-template/harbor-task:1.0.1
+ghcr.io/krave1986/harbor-task-devcontainer-template/harbor-task:2.0.0
 ```
 
 GHCR package page:
@@ -56,7 +56,7 @@ For example, this repository contains:
 ```json
 {
   "id": "harbor-task",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "publisher": "krave1986"
 }
 ```
@@ -70,7 +70,7 @@ krave1986/harbor-task-devcontainer-template
 Therefore its published GHCR reference is:
 
 ```text
-ghcr.io/krave1986/harbor-task-devcontainer-template/harbor-task:1.0.1
+ghcr.io/krave1986/harbor-task-devcontainer-template/harbor-task:2.0.0
 ```
 
 The GHCR reference is an OCI container registry reference, not a web URL. To browse the published package, use the GitHub Packages page above.
@@ -268,12 +268,15 @@ The working configuration is:
   "name": "Harbor Task",
   "build": {
     "dockerfile": "${localWorkspaceFolder}/environment/Dockerfile",
-    "context": "${localWorkspaceFolder}"
+    "context": "${localWorkspaceFolder}/environment"
   },
-  "workspaceMount": "source=${localWorkspaceFolder}/solution,target=/app,type=bind",
   "workspaceFolder": "/app"
 }
 ```
+
+The `context` matches Harbor's own build context (`environment/`), so
+`COPY` paths in the task Dockerfile behave the same locally as they do
+under Harbor evaluation.
 
 ---
 
@@ -332,43 +335,36 @@ solves this because the path explicitly starts from the actual target workspace.
 
 ---
 
-# Why mount only `solution/`?
+# Why is there no workspace mount?
 
 ## Answer
 
-The Dockerfile contains:
+`/app` is the image layer produced by the task's Docker build.
 
-```dockerfile
-WORKDIR /app
-```
-
-The actual source we are editing is:
+Mounting any host folder onto `/app` would obscure it:
 
 ```text
-task/solution/
+image layer:  /app   (the accident scene the agent will receive)
+bind mount:   /app   (whatever the host folder contains)
+                     ↑ the mount wins, the image layer is hidden
 ```
 
-Therefore:
+The purpose of this Template is to preview the environment exactly as
+the agent will receive it. Therefore the container keeps the Docker
+build's own `/app`, with no host folder covering it.
 
-```json
-"workspaceMount": "source=${localWorkspaceFolder}/solution,target=/app,type=bind"
-```
+Anything created inside the container (databases, build artifacts,
+installed files) lives only in the container and never touches the host
+task folder. Rebuilding the container resets `/app` back to the image
+state.
 
-makes:
+The solution can still be edited directly on the host:
 
 ```text
-Windows:
-task/solution/
-
-        ↓ bind mount
-
-Container:
-/app/
+task/solution/solve.sh
 ```
 
-This is exactly what we want.
-
-The rest of the Harbor task remains available through the container filesystem because it was already included by the Docker build context where appropriate, while the editable solution is directly mounted from the host.
+no mount required.
 
 ---
 
@@ -376,23 +372,12 @@ The rest of the Harbor task remains available through the container filesystem b
 
 ## Answer
 
-Because `/app` is the working directory defined by the task Dockerfile.
+Because a bind mount onto `/app` hides exactly the files you want to
+inspect: the ones the task Dockerfile `COPY`'d into the image.
 
-Mounting the entire task directory onto `/app` would turn:
-
-```text
-/app
-```
-
-into a host bind mount and could obscure files that were created by the Dockerfile.
-
-More importantly, the actual artifact we are developing is:
-
-```text
-solution/
-```
-
-So mounting only `solution/` keeps the container environment controlled by the task's Dockerfile while making the solution directly editable from Windows.
+If host files are needed inside the container, VS Code's default
+workspace mount at `/workspaces/` is available and does not touch
+`/app`.
 
 ---
 
@@ -413,9 +398,7 @@ Dockerfile
     ↓
 one container
     ↓
-/app
-    ↑
-solution/ bind mount
+/app  (image layer, agent's first-person view)
 ```
 
 ---
@@ -481,7 +464,7 @@ GitHub Container Registry provides a natural distribution mechanism for them.
 The published Template is:
 
 ```text
-ghcr.io/krave1986/harbor-task-devcontainer-template/harbor-task:1.0.1
+ghcr.io/krave1986/harbor-task-devcontainer-template/harbor-task:2.0.0
 ```
 
 This means the Template can be consumed directly by VS Code without cloning this repository.
@@ -515,7 +498,7 @@ The Template name is the final `harbor-task` component.
 Therefore this is the ID to use in VS Code:
 
 ```text
-ghcr.io/krave1986/harbor-task-devcontainer-template/harbor-task:1.0.1
+ghcr.io/krave1986/harbor-task-devcontainer-template/harbor-task:2.0.0
 ```
 
 ---
@@ -555,6 +538,26 @@ When the Template changes, increment the version:
 ```
 
 and publish again.
+
+---
+
+# Why is the version jumping to `2.0.0`?
+
+## Answer
+
+The Template changed in a breaking way:
+
+* the build `context` moved from the task root to `environment/`,
+  matching Harbor's own build context, so `COPY` paths in task
+  Dockerfiles resolve correctly;
+* the `solution/ → /app` workspace mount was removed.
+
+Tasks that relied on editing the solution through `/app` will no
+longer see a host folder there. That is intentional: `/app` is now
+the image layer — the exact state the agent receives.
+
+Tasks that use the Template only to preview the environment work as
+before, with correct `COPY` semantics.
 
 ---
 
@@ -733,12 +736,11 @@ harbor-task-devcontainer-template/
 ```json
 {
   "id": "harbor-task",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "name": "Harbor Task",
   "description": "Minimal Dev Container for Harbor tasks using the task environment Dockerfile.",
   "documentationURL": "https://github.com/krave1986/harbor-task-devcontainer-template",
   "publisher": "krave1986",
-  "licenseURL": "https://github.com/krave1986/harbor-task-devcontainer-template/blob/main/LICENSE",
   "platforms": [
     "Linux"
   ],
@@ -757,9 +759,8 @@ harbor-task-devcontainer-template/
   "name": "Harbor Task",
   "build": {
     "dockerfile": "${localWorkspaceFolder}/environment/Dockerfile",
-    "context": "${localWorkspaceFolder}"
+    "context": "${localWorkspaceFolder}/environment"
   },
-  "workspaceMount": "source=${localWorkspaceFolder}/solution,target=/app,type=bind",
   "workspaceFolder": "/app"
 }
 ```
@@ -807,7 +808,7 @@ Then:
 5. Enter:
 
    ```text
-   ghcr.io/krave1986/harbor-task-devcontainer-template/harbor-task:1.0.1
+   ghcr.io/krave1986/harbor-task-devcontainer-template/harbor-task:2.0.0
    ```
 
 6. Apply the Template.
