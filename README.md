@@ -270,7 +270,8 @@ The working configuration is:
     "dockerfile": "${localWorkspaceFolder}/environment/Dockerfile",
     "context": "${localWorkspaceFolder}/environment"
   },
-  "workspaceFolder": "/app"
+  "workspaceFolder": "/app",
+  "forwardPorts": [5173]
 }
 ```
 
@@ -541,6 +542,24 @@ and publish again.
 
 ---
 
+# Why is the version jumping to `2.1.0`?
+
+## Answer
+
+A non-breaking addition: `forwardPorts: [5173]`.
+
+Vite's dev server binds to localhost inside the container by default
+(`Network: use --host to expose`). With the port forwarded by the Dev
+Container, the app is reachable from the host browser at:
+
+```text
+http://localhost:5173
+```
+
+without asking the task's start command to add `--host`.
+
+---
+
 # Why is the version jumping to `2.0.0`?
 
 ## Answer
@@ -761,7 +780,8 @@ harbor-task-devcontainer-template/
     "dockerfile": "${localWorkspaceFolder}/environment/Dockerfile",
     "context": "${localWorkspaceFolder}/environment"
   },
-  "workspaceFolder": "/app"
+  "workspaceFolder": "/app",
+  "forwardPorts": [5173]
 }
 ```
 

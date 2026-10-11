@@ -4,5 +4,6 @@
         "dockerfile": "${localWorkspaceFolder}/environment/Dockerfile",
         "context": "${localWorkspaceFolder}/environment"
     },
-    "workspaceFolder": "/app"
+    "workspaceFolder": "/app",
+    "forwardPorts": [5173]
 }
